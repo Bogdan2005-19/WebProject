@@ -1,10 +1,21 @@
-<div class="reviews-list">
+<div rel="review" class="reviews-list">
     {% for review in reviews %}
-        <div class="review-card">
+        <div typeof="Review" class="review-card">
+            <div property="itemReviewed" typeof="VideoGame">
+                <meta property="name" content="Review del juego: {{ juego.titulo }}">
+                <link property="url" href="http://localhost:8000/juego/217/?next=/">
+            </div>
+
             <div class="review-header">
-                <strong>{{ review.usuario.username }}</strong>
+
+                <strong><span property="author" typeof="Person"><span property="name">{{ review.usuario.username }}</span></span></strong>
                 <span class="review-rating">
-                    {% for i in "12345" %}
+                    <div rel="reviewRating" typeof="Rating">
+                        <meta property="worstRating" content="1">
+                        <meta property="ratingValue" content="{{ review.rating }}">
+                        <meta property="bestRating" content="10">
+                    </div>
+                    {% for i in "1234567890" %}
                         {% if forloop.counter <= review.rating %}
                             ★
                         {% else %}
@@ -26,9 +37,9 @@
                     {% include 'partials/edit_review.html' %}
                 {% endif %}
             </div>
-            <h5 class="titulo">{{ review.titulo }}</h5>
-            <p>{{ review.texto|truncatechars:300 }}</p>
-            <small>Publicado {{ review.fecha_review|date:"d M Y" }}</small>
+            <h5 property="name" class="titulo">{{ review.titulo }}</h5>
+            <p property="description">{{ review.texto|truncatechars:300 }}</p>
+            <small property="datePublished">Publicado {{ review.fecha_review|date:"d M Y" }}</small>
         </div>
     {% empty %}
         <p>No hay reseñas aún.</p>

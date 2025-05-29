@@ -69,26 +69,14 @@
                                     <span>No especificado</span>
                                 {% endfor %}
                             </div>
-
-                            {% if reviews|length > 0 and juego.rating is not None %}
                             <div rel="aggregateRating" typeof="AggregateRating" style="display: flex; align-items: center; gap: 10px;">
                                 <meta property="worstRating" content="1.0">
-                                <meta property="bestRating" content="5.0">
+                                <meta property="bestRating" content="100.0">
+                                <meta property="reviewCount" content="1">
                                 <p><strong>Rating:</strong>
                                     <span property="ratingValue" class="rating-badge">{{ juego.rating|floatformat:1 }}</span>
-                                    (basado en <span property="reviewCount">{{ reviews|length }}</span>
-                                    reseña{{ reviews|length|pluralize:"s" }})
                                 </p>
                             </div>
-                            {% elif juego.rating is not None %}
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                 <p><strong>Rating:</strong> <span class="rating-badge">{{ juego.rating|floatformat:1 }}</span> (Aún sin conteo de reseñas)</p>
-                            </div>
-                            {% else %}
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                 <p><strong>Rating:</strong> <span class="rating-badge">N/A</span></p>
-                            </div>
-                            {% endif %}
 
                             <p property="description">
                                 {{ juego.descripcion }}
@@ -117,24 +105,7 @@
                     </div>
                     <div class="col-10 align-self-center">
                         {% if reviews %}
-                            <ul rel="review" style="padding-left: 0;">
-                                {% for review_item in reviews %}
-                                    <li typeof="Review" style="list-style-type: none; margin-bottom: 20px; padding:10px; border: 1px solid #eee;">
-                                        <h4 property="name">{{ review_item.titulo }}</h4>
-
-                                        <div rel="reviewRating" typeof="Rating">
-                                            <meta property="worstRating" content="1">
-                                            <p>Rating: <span property="ratingValue">{{ review_item.rating }}</span>/5 estrellas</p>
-                                            <meta property="bestRating" content="5">
-                                        </div>
-
-                                        <p property="description">{{ review_item.texto }}</p>
-                                        <p>Por <span property="author" typeof="Person"><span property="name">{{ review_item.usuario.username }}</span></span>
-                                           el <time property="datePublished" datetime="{{ review_item.fecha_review|date:'Y-m-d' }}">{{ review_item.fecha_review|date:"d M Y" }}</time>
-                                        </p>
-                                    </li>
-                                {% endfor %}
-                            </ul>
+                            {% include 'partials/reviews_list.html' %}
                         {% else %}
                            <p>Aún no hay reseñas para este juego.</p>
                         {% endif %}
