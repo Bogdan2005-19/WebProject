@@ -11,14 +11,14 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/header.css' %}">
     <link rel="stylesheet" href="{% static 'css/reviews.css' %}">
-    
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body class="container pb-3">
     {% include 'partials/navbar.html' %}
-    <div class="content-container game-details-card">
+    <div class="content-container game-details-card" vocab="https://schema.org/" typeof="VideoGame">
         <div class="back-button">
             {% if next %}
                 <a href="{{ next }}">
@@ -32,7 +32,7 @@
         </div>
         <div class="p-5 border border-1 shadow rounded">
             <div>
-                <h1>{{ juego.titulo }}</h1>
+                <h1 property="name">{{ juego.titulo }}</h1>
                 {% if not user.is_authenticated or not juego in user.juegos_guardados.all %}
                     <form method="POST" action="{% url 'guardar_juego' juego.pk %}">
                         {% csrf_token %}
@@ -49,17 +49,32 @@
             </div>
             <div class="row" style="margin-top: 20px;">
                 <div class="col-sm-12 col-md-5">
-                    <img src="{{ juego.portada }}" style="width: 100%; max-width: 300px" alt="Imagen de {{ juego.titulo }}">
+                    <img property="image" src="{{ juego.portada }}" style="width: 100%; max-width: 300px" alt="Imagen de {{ juego.titulo }}">
                 </div>
                 <div class="col-sm-12 col-md-7">
-                    <div >
+                    <div>
                         <div style="display: flex; align-items: center; justify-content: center;">
-                            <h5><strong>Fecha de lanzamiento: {{ juego.fecha_lanzamiento }} </strong></h5>
+                            <meta property="datePublished" content="{{ juego.fecha_lanzamiento|date:'Y-m-d' }}">
+                            <h5><strong>Fecha de lanzamiento: {{ juego.fecha_lanzamiento|date:"d M Y" }} </strong></h5>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <p><strong>Rating:</strong> <span class="rating-badge">{{ juego.rating|floatformat:1 }}</span></p>
+                        <div>
+                            <strong>Géneros:</strong>
+                            {% for gen in juego.genero.all %}
+                                <span property="genre">{{ gen.nombre }}</span>{% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                                <span>No especificado</span>
+                            {% endfor %}
                         </div>
-                        <p>
+                        <div rel="aggregateRating" typeof="AggregateRating" style="display: flex; align-items: center; gap: 10px;">
+                            <meta property="worstRating" content="1.0">
+                            <meta property="bestRating" content="100.0">
+                            <meta property="reviewCount" content="1">
+                            <p><strong>Rating:</strong>
+                                <span property="ratingValue" class="rating-badge">{{ juego.rating|floatformat:1 }}</span>
+                            </p>
+                        </div>
+
+                        <p property="description">
                             {{ juego.descripcion }}
                         </p>
                     </div>
@@ -69,8 +84,8 @@
         <hr>
         <div>
             <h3>Juegos similares</h3>
-            {% for juego in similares %}
-                {% include 'partials/game_card.html' %}
+            {% for similar_juego in similares %}
+                {% include 'partials/game_card.html' with juego=similar_juego %}
             {% endfor %}
         </div>
         <hr>
@@ -87,10 +102,13 @@
                 <div class="col-10 align-self-center">
                     {% if reviews %}
                         {% include 'partials/reviews_list.html' %}
+                    {% else %}
+                       <p>Aún no hay reseñas para este juego.</p>
                     {% endif %}
                 </div>
             </div>
         </div>
     </div>
+    {% bootstrap_javascript %}
 </body>
 </html>
