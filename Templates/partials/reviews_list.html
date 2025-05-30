@@ -7,7 +7,6 @@
             </div>
 
             <div class="review-header">
-
                 <strong><span property="author" typeof="Person"><span property="name">{{ review.usuario.username }}</span></span></strong>
                 <span class="review-rating">
                     <div rel="reviewRating" typeof="Rating">
@@ -39,7 +38,12 @@
             </div>
             <h5 property="name" class="titulo">{{ review.titulo }}</h5>
             <p property="description">{{ review.texto|truncatechars:300 }}</p>
-            <small property="datePublished">Publicado {{ review.fecha_review|date:"d M Y" }}</small>
+            <small>
+                Publicado
+                <time property="datePublished" datetime="{{ review.fecha_review|date:'Y-m-d' }}">
+                    {{ review.fecha_review|date:"d M Y" }}
+                </time>
+            </small>
         </div>
     {% empty %}
         <p>No hay reseñas aún.</p>

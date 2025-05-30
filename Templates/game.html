@@ -18,98 +18,93 @@
 </head>
 <body class="container pb-3">
     {% include 'partials/navbar.html' %}
-
-    <div vocab="https://schema.org/" typeof="VideoGame">
-
-        <div class="content-container game-details-card">
-            <div class="back-button">
-                {% if next %}
-                    <a href="{{ next }}">
-                        <h3>&longleftarrow; Volver</h3>
-                    </a>
+    <div class="content-container game-details-card" vocab="https://schema.org/" typeof="VideoGame">
+        <div class="back-button">
+            {% if next %}
+                <a href="{{ next }}">
+                    <h3>&longleftarrow; Volver</h3>
+                </a>
+            {% else %}
+                <a href="{% url 'game_list' %}">
+                    <h3>&longleftarrow; Volver</h3>
+                </a>
+            {% endif %}
+        </div>
+        <div class="p-5 border border-1 shadow rounded">
+            <div>
+                <h1 property="name">{{ juego.titulo }}</h1>
+                {% if not user.is_authenticated or not juego in user.juegos_guardados.all %}
+                    <form method="POST" action="{% url 'guardar_juego' juego.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ next }}">
+                        <button type="submit">☆</button>
+                    </form>
                 {% else %}
-                    <a href="{% url 'game_list' %}">
-                        <h3>&longleftarrow; Volver</h3>
-                    </a>
+                    <form method="POST" action="{% url 'quitar_juego' juego.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ next }}">
+                        <button type="submit">★</button>
+                    </form>
                 {% endif %}
             </div>
-
-            <div class="p-5 border border-1 shadow rounded">
-                <div>
-                    <h1 property="name">{{ juego.titulo }}</h1>
-                    {% if not user.is_authenticated or not juego in user.juegos_guardados.all %}
-                        <form method="POST" action="{% url 'guardar_juego' juego.pk %}">
-                            {% csrf_token %}
-                            <input type="hidden" name="next" value="{{ next }}">
-                            <button type="submit">☆</button>
-                        </form>
-                    {% else %}
-                        <form method="POST" action="{% url 'quitar_juego' juego.pk %}">
-                            {% csrf_token %}
-                            <input type="hidden" name="next" value="{{ next }}">
-                            <button type="submit">★</button>
-                        </form>
-                    {% endif %}
+            <div class="row" style="margin-top: 20px;">
+                <div class="col-sm-12 col-md-5">
+                    <img property="image" src="{{ juego.portada }}" style="width: 100%; max-width: 300px" alt="Imagen de {{ juego.titulo }}">
                 </div>
-                <div class="row" style="margin-top: 20px;">
-                    <div class="col-sm-12 col-md-5">
-                        <img property="image" src="{{ juego.portada }}" style="width: 100%; max-width: 300px" alt="Imagen de {{ juego.titulo }}">
-                    </div>
-                    <div class="col-sm-12 col-md-7">
+                <div class="col-sm-12 col-md-7">
+                    <div>
+                        <div style="display: flex; align-items: center; justify-content: center;">
+                            <meta property="datePublished" content="{{ juego.fecha_lanzamiento|date:'Y-m-d' }}">
+                            <h5><strong>Fecha de lanzamiento: {{ juego.fecha_lanzamiento|date:"d M Y" }} </strong></h5>
+                        </div>
                         <div>
-                            <div style="display: flex; align-items: center; justify-content: center;">
-                                <meta property="datePublished" content="{{ juego.fecha_lanzamiento|date:'Y-m-d' }}">
-                                <h5><strong>Fecha de lanzamiento: {{ juego.fecha_lanzamiento|date:"d M Y" }} </strong></h5>
-                            </div>
-                            <div>
-                                <strong>Géneros:</strong>
-                                {% for gen in juego.genero.all %}
-                                    <span property="genre">{{ gen.nombre }}</span>{% if not forloop.last %}, {% endif %}
-                                {% empty %}
-                                    <span>No especificado</span>
-                                {% endfor %}
-                            </div>
-                            <div rel="aggregateRating" typeof="AggregateRating" style="display: flex; align-items: center; gap: 10px;">
-                                <meta property="worstRating" content="1.0">
-                                <meta property="bestRating" content="100.0">
-                                <meta property="reviewCount" content="1">
-                                <p><strong>Rating:</strong>
-                                    <span property="ratingValue" class="rating-badge">{{ juego.rating|floatformat:1 }}</span>
-                                </p>
-                            </div>
-
-                            <p property="description">
-                                {{ juego.descripcion }}
+                            <strong>Géneros:</strong>
+                            {% for gen in juego.genero.all %}
+                                <span property="genre">{{ gen.nombre }}</span>{% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                                <span>No especificado</span>
+                            {% endfor %}
+                        </div>
+                        <div rel="aggregateRating" typeof="AggregateRating" style="display: flex; align-items: center; gap: 10px;">
+                            <meta property="worstRating" content="1.0">
+                            <meta property="bestRating" content="100.0">
+                            <meta property="reviewCount" content="1">
+                            <p><strong>Rating:</strong>
+                                <span property="ratingValue" class="rating-badge">{{ juego.rating|floatformat:1 }}</span>
                             </p>
                         </div>
+
+                        <p property="description">
+                            {{ juego.descripcion }}
+                        </p>
                     </div>
                 </div>
             </div>
-            <hr>
-            <div>
-                <h3>Juegos similares</h3>
-                {% for similar_juego in similares %}
-                    {% include 'partials/game_card.html' with juego=similar_juego %}
-                {% endfor %}
-            </div>
-            <hr>
-            <div class="reviews">
-                <h3>Reseñas:</h3>
-                <div class="row justify-content-center">
-                    <div class="col-8 align-self-center">
-                        {%  if user.is_authenticated %}
-                            {% include 'partials/review_form.html' %}
-                        {% else %}
-                            <p><a href="{% url 'login' %}">Iniciar Sesión</a> para dejar una reseña</p>
-                        {% endif %}
-                    </div>
-                    <div class="col-10 align-self-center">
-                        {% if reviews %}
-                            {% include 'partials/reviews_list.html' %}
-                        {% else %}
-                           <p>Aún no hay reseñas para este juego.</p>
-                        {% endif %}
-                    </div>
+        </div>
+        <hr>
+        <div>
+            <h3>Juegos similares</h3>
+            {% for similar_juego in similares %}
+                {% include 'partials/game_card.html' with juego=similar_juego %}
+            {% endfor %}
+        </div>
+        <hr>
+        <div class="reviews">
+            <h3>Reseñas:</h3>
+            <div class="row justify-content-center">
+                <div class="col-8 align-self-center">
+                    {%  if user.is_authenticated %}
+                        {% include 'partials/review_form.html' %}
+                    {% else %}
+                        <p><a href="{% url 'login' %}">Iniciar Sesión</a> para dejar una reseña</p>
+                    {% endif %}
+                </div>
+                <div class="col-10 align-self-center">
+                    {% if reviews %}
+                        {% include 'partials/reviews_list.html' %}
+                    {% else %}
+                       <p>Aún no hay reseñas para este juego.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
