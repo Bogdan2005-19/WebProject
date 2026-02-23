@@ -13,7 +13,7 @@ from web.models import *
 
 
 def home(request):
-    API_KEY = 'pub_78670010e7e9dc763d072171bfec442ce08dc'
+    API_KEY = 'API_KEY'
     URL = 'https://newsdata.io/api/1/news'
 
     noticias = []
