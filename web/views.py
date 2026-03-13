@@ -10,42 +10,10 @@ from django.views.generic import CreateView
 
 from web.forms import *
 from web.models import *
-
+from web.utils import *
 
 def home(request):
-    API_KEY = 'API_KEY'
-    URL = 'https://newsdata.io/api/1/news'
-
-    noticias = []
-    try:
-        params = {
-            'apikey': API_KEY,
-            'q': 'videojuegos',
-            'language': 'es',
-            'category': 'technology',
-        }
-        response = requests.get(URL, params=params)
-        response.raise_for_status()
-        resultados = response.json().get('results', [])
-
-        # Usamos un conjunto para almacenar títulos únicos
-        titulos_vistos = set()
-        noticias_unicas = []
-
-        for noticia in resultados:
-            titulo = noticia['title']
-
-            if titulo not in titulos_vistos:
-                titulos_vistos.add(titulo)
-                noticias_unicas.append(noticia)
-
-        noticias = noticias_unicas[:4]
-    except requests.exceptions.RequestException as e:
-        print(f"Error al obtener noticias: {e}")
-    except ValueError as e:
-        print(f"Error al procesar los datos JSON: {e}")
-    except Exception as e:
-        print(f"Error inesperado: {e}")
+    noticias = obtener_noticias_videojuegos()
 
     videojuegos = Videojuego.objects.all().order_by('-rating')[:6]
 
@@ -53,15 +21,13 @@ def home(request):
         'noticias': noticias,
         'videojuegos': videojuegos,
     })
+
 def game(request, pk):
     juego = get_object_or_404(Videojuego, pk=pk)
-    genero = juego.genero.first()
     reviews = Review.objects.filter(videojuego=juego)
 
-    similares = (
-        Videojuego.objects.filter(genero__nombre__icontains=genero).exclude(pk=juego.pk)[:6]
-        if genero else []
-    )
+    similares = juegos_similares(juego)
+
     next_url = request.GET.get("next", None)
     if request.method == "POST":
         form = ReviewForm(request.POST)
@@ -116,6 +82,8 @@ def game_list(request):
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, 'partials/partial_list.html', context)
     return render(request, 'game_list.html', context)
+
+
 @login_required
 def guardar_juego(request, pk):
     if request.method == "POST":
@@ -125,10 +93,8 @@ def guardar_juego(request, pk):
         usuario.juegos_guardados.add(juego)
 
         next_url = request.POST.get("next", None)  # Si no se pasa next, se queda como None
-        print(next_url)
-        # Aquí no rediriges, simplemente renderizas de nuevo la página 'game'
+
         if next_url:
-            # Se incluye el next en la URL de la respuesta
             return redirect(f"{reverse('game', args=[pk])}?next={next_url}")
         else:
             return redirect(reverse('game', args=[pk]))
@@ -145,18 +111,19 @@ def quitar_juego(request, pk):
 
         next_url = request.POST.get("next", None)  # Si no se pasa next, se queda como None
 
-        # Aquí no rediriges, simplemente renderizas de nuevo la página 'game'
         if next_url:
-            # Se incluye el next en la URL de la respuesta
             return redirect(f"{reverse('game', args=[pk])}?next={next_url}")
         else:
             return redirect(reverse('game', args=[pk]))
     else:
         return redirect('home')
+
 class register_view(CreateView):
     form_class = CustomUserCreationForm
     success_url = reverse_lazy("login")
     template_name = "register.html"
+
+
 @login_required
 def pagina_perfil(request):
     user = request.user

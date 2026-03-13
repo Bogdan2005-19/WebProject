@@ -1,0 +1,12 @@
+.vscode/
+.idea/
+.DS_Store
+__pycache__/
+env/
+venv/
+ENV/
+.env/
+.gitignore
+migrations/
+features/
+db.sqlite3

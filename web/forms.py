@@ -12,6 +12,11 @@ class CustomUserCreationForm(forms.ModelForm):
         max_length=150,
         help_text=''
     )
+    email = forms.EmailField(
+        label='Correo electrónico',
+        max_length=254,
+        help_text=''
+    )
     password = forms.CharField(
         label='Contraseña',
         widget=forms.PasswordInput,

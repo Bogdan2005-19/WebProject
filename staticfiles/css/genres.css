@@ -1,0 +1,49 @@
+.gen_button button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: none;
+    border-radius: 5px;
+    background: #8b20fe;
+    color: #f1e1ff;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.gen_button button:hover {
+    filter: brightness(1.15);
+    transform: scale(1.05);
+}
+
+.gen_button button:disabled {
+    background: #dfe6e9;
+    color: #636e72;
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.sidebar {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.game-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 15px;
+}
+
+/* Asegura que las imágenes no se estiren fuera del grid */
+.game-container img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.game-container img:hover {
+    transform: scale(1.05);
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+}

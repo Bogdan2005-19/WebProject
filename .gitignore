@@ -1,11 +1,8 @@
 .vscode/
 .idea/
-*.sublime-project
-*.sublime-workspace
-*.log
-*.pot
-*.pyc
-*.pyo
-*.db
-.DS_Store       # macOS
-Thumbs.db       # Windows
+.DS_Store
+__pycache__/
+env/
+venv/
+ENV/
+.env/

@@ -1,0 +1,55 @@
+/* Estilo general del encabezado */
+header {
+    background-color: #333;
+    color: white;
+    padding: 15px 20px;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Logo */
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+    padding-right: 20px ;
+}
+
+header > div {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+/* Estilo para los botones */
+.button {
+    background-color: #444;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+/* Hover para botones */
+.button:hover {
+    background-color: #555;
+}
+
+/* Estilo de la barra de búsqueda */
+.search-bar input {
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: none;
+    font-size: 16px;
+    outline: none;
+    width: 200px;
+}

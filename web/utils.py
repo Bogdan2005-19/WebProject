@@ -3,10 +3,9 @@ import requests
 from .models import Videojuego, Genero
 
 CLIENT_ID = "9vfzl5tc1x9ekb58ahdtg14og1ecmp"
-CLIENT_SECRET = "und6b4vuxn6alvmeaiqefcanhkt96o"
+CLIENT_SECRET = "fr4k4hthydicvx8p5zskmrj4t3aqgz"
 TOKEN_URL = "https://id.twitch.tv/oauth2/token"
 API_URL = "https://api.igdb.com/v4/games"
-
 
 def obtener_token():
     """Obtiene un token de acceso para la API de IGDB"""
@@ -16,7 +15,6 @@ def obtener_token():
         'grant_type': 'client_credentials'
     })
     return response.json().get("access_token")
-
 
 def importar_juegos_desde_igdb():
     """Importa juegos desde IGDB y los guarda en la base de datos"""
@@ -85,3 +83,50 @@ def importar_juegos_desde_igdb():
         print("✅ Juegos importados o actualizados con éxito")
     else:
         print(f"❌ Error al obtener juegos: {response.status_code}")
+
+
+NEWS_API_KEY = 'pub_78670010e7e9dc763d072171bfec442ce08dc'
+NEWS_URL = 'https://newsdata.io/api/1/news'
+
+def obtener_noticias_videojuegos():
+    """Obtiene noticias sobre videojuegos desde la API de NewsData"""
+    noticias = []
+    try:
+        params = {
+            'apikey': NEWS_API_KEY,
+            'q': 'videojuegos',
+            'language': 'es',
+            'category': 'technology',
+        }
+        response = requests.get(NEWS_URL, params=params)
+        response.raise_for_status()
+        resultados = response.json().get('results', [])
+
+        # Usamos un conjunto para almacenar títulos únicos
+        titulos_vistos = set()
+        noticias_unicas = []
+
+        for noticia in resultados:
+            titulo = noticia['title']
+
+            if titulo not in titulos_vistos:
+                titulos_vistos.add(titulo)
+                noticias_unicas.append(noticia)
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error al obtener noticias: {e}")
+    except ValueError as e:
+        print(f"Error al procesar los datos JSON: {e}")
+    except Exception as e:
+        print(f"Error inesperado: {e}")
+
+    return noticias_unicas[:4]
+
+def juegos_similares(videojuego):
+    """Obtiene juegos similares basados en el género del videojuego dado"""
+    generos = videojuego.genero.all()
+    if generos.exists():
+        genero = generos.first()  # Tomamos el primer género para buscar juegos similares
+        juegos_similares = Videojuego.objects.filter(genero=genero).exclude(id=videojuego.id)[:6]
+        return juegos_similares
+    return []
