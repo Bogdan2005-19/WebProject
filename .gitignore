@@ -6,3 +6,6 @@ env/
 venv/
 ENV/
 .env/
+migrations/
+features/
+db.sqlite3
